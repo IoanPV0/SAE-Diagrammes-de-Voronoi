@@ -3,7 +3,7 @@ from config import screen
 from point import Point
 class Droite():
     def __init__(self, abscisse) -> None:
-        self.x = abscisse
+        self._x = abscisse
 
     @property
     def x(self) -> float:

@@ -2,8 +2,8 @@ import pygame
 from config import screen
 class Point():
     def __init__(self, abscisse : float, ordonnee : float):
-        self.x : float = abscisse
-        self.y : float = ordonnee
+        self._x : float = abscisse
+        self._y : float = ordonnee
 
     @property
     def x(self) -> float:
@@ -21,6 +21,6 @@ class Point():
     def y(self, ordonnee : float) -> None:
         self._y = ordonnee
     
-    def tracer(self) -> None:
+    def tracer(self, couleur: tuple[int, int, int] = (0, 0, 0)) -> None:
         if self.y > 0 and self.y < screen.get_height():
-            pygame.draw.circle(screen, (0, 0, 0), (self.x, self.y), 1)
+            pygame.draw.circle(screen, couleur, (self.x, self.y), 1)

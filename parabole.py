@@ -4,22 +4,35 @@ from config import screen
 from math import sqrt
 class Parabole():
     def __init__(self, foyer : Point, directrice : Droite):
-        self.foyer = foyer
-        self.directrice = directrice
-        self.domaine = None
+        self._foyer = foyer
+        self._directrice = directrice
+        self._domaine = None
+        self.calcul_domaine()
+
+    @property
+    def foyer(self) -> Point:
+        return self._foyer
+    
+    @property
+    def directrice(self) -> Droite:
+        return self._directrice
+    
+    @property
+    def domaine(self) -> tuple[int, int]:
+        return self._domaine
 
     def calcul_domaine(self) -> None:
         a = self.foyer.x
         k = self.directrice.x
         # foyer et parabole à droite de la directrice
         if a > k: 
-            self.domaine = (int((a + k) / 2), int(screen.get_width()))
+            self._domaine = (int((a + k) / 2), int(screen.get_width()))
         # foyer et parabole à gauche de la directrice
         else: 
-            self.domaine = (int(0), int((a + k) / 2))
+            self._domaine = (int(0), int((a + k) / 2))
         
 
-    def equation(self, x: float) -> list[Point]:
+    def equation(self, x: float, branche: str) -> list[Point]:
         a = self.foyer.x
         b = self.foyer.y
         k = self.directrice.x
@@ -33,26 +46,139 @@ class Parabole():
 
         # verification si le discriminant est négatif
         if discriminant < 0:
-            return []
-
-        y1 = b + sqrt(discriminant)
-        y2 = b - sqrt(discriminant)
-        p1 = Point(x, y1)
-        p2 = Point(x, y2)
-        return [p1, p2]
+            return None
+        
+        if branche == "superieure":
+            y = b + sqrt(discriminant)
+        elif branche == "inferieure":
+            y = b - sqrt(discriminant)
+        return Point(x, y)
 
             
 
+    
+    
     def intersection(self, parabole) -> list[Point]:
-        pass
+        points_intersection: list[Point] = []
+        # On a k1 = k2 dans notre cas d'usage (car la directrice est la meme pour les 2 paraboles)
+        a1: float = self.foyer.x #a1, b1 pour notre parabole
+        b1: float = self.foyer.y
+        a2: float = parabole.foyer.x #a2, b2 pour la parabole comparée
+        b2: float = parabole.foyer.y
+        k: float = self.directrice.x
+
+        #SOLUTION 1 : superieure, superieure
+        branche_parabole_1 = "superieure"
+        branche_parabole_2 = "superieure"
+        
+        d = 2*(a1-a2)
+        e = a2**2 - a1**2 - (b2 - b1)**2
+        f = 2*(b2-b1)
+
+        p = d**2
+        q = 2*d*e - 2*f**2*(a2-k)
+        r = e**2 - f**2*(k**2-a2**2)
+
+        # On obtient une équation de la forme px^2 + qx + r = 0 (polynome 2nd degré)
+        
+        # Vérification du discriminant
+
+        delta = q**2 - 4*p*r
+        if delta < 0:
+            return None
+        if delta == 0:
+            # Résolution du polynome
+            x1 = -q /(2*p)
+            x2 = None
+        else:
+            # Résolution du polynome
+            x1 = (-q + sqrt(q**2 - 4*p*r)) / (2*p)
+            x2 = (-q - sqrt(q**2 - 4*p*r)) / (2*p)
+
+        """ VÉRIFICATION DE LA SOLUTION DANS LES 2 ÉQUATIONS"""
+         
+        self.verification(x1, x2, branche_parabole_1, branche_parabole_2, parabole)
+
+        # SOLUTION 2 : superieure inferieure
+
+        branche_parabole_1 = "superieure"
+        branche_parabole_2 = "inferieure"
+
+        d = 2*(a1-a2)
+        e = a2**2 - a1**2 - (b2-b1)**2
+        f = (-2)*(b2-b1)
+
+        p = d**2
+        q = 2*d*e - 2*f**2*(a2-k)
+        r = e**2 - f**2*(k**2-a2**2)
+
+        # SOLUTION 3 : inferieure superieure
+
+        branche_parabole_1 = "inferieure"
+        branche_parabole_2 = "superieure"
+
+        d = (-2)*(a1-k)*(a2-k)
+        e = a1**2 + a2**2 - 2*k**2 - (b2-b1)**2
+        f = 2*(b2-b1)
+
+        p = d**2
+        q = 2*d*e - 2*f**2*(a2-k)
+        r = e**2 - f**2*(k**2-a2**2)
+
+        # SOLUTION 4 : inferieure inferieure
+        
+        branche_parabole_1 = "inferieure"
+        branche_parabole_2 = "inferieure"
+
+        d = (-2)*(a1-k)*(a2-k)
+        e = a1**2 + a2**2 - 2*k**2 - (b2-b1)**2
+        f = (-2)*(b2-b1)
+
+        p = d**2
+        q = 2*d*e - 2*f**2*(a2-k)
+        r = e**2 - f**2*(k**2-a2**2)
+        
+       
+        
+        
+        print(x1, x2)
+        return points_intersection
             
+
+    def verification(self, x1 : float, x2 : float, branche_parabole_1: str, branche_parabole_2: str, parabole):
+        
+        points_intersection = []
+
+        # Vérification du domaine de définition  
+        if self.domaine[0] <= x1 <= self.domaine[1] or parabole.domaine[0] <= x1 <= parabole.domaine[1]:
+            equation_x1_1 = self.equation(x1, branche_parabole_1)
+            equation_x1_2 = parabole.equation(x1, branche_parabole_2)
+            # On vérifie si les solutions existent
+            if equation_x1_1 != None and equation_x1_2 != None: 
+                # On vérifie que la solution est la même 
+                # POUR LES BRANCHES TESTÉES
+                if equation_x1_1.y == equation_x1_2.y:
+                    points_intersection.append(self.equation(x1))
+        if x2 != None:
+            if self.domaine[0] <= x2 <= self.domaine[1] or parabole.domaine[0] <= x2 <= parabole.domaine[1]:
+                equation_x2_1 = self.equation(x2, branche_parabole_1)
+                equation_x2_2 = parabole.equation(x2, branche_parabole_2)
+                # On vérifie si les solutions existent
+                if equation_x2_1 != None and equation_x2_2 != None: 
+                    # On vérifie que la solution est la même 
+                    # POUR LES BRANCHES SUPÉRIEURES CAR C'EST CELLES QU'ON TESTE
+                    if equation_x2_1.y == equation_x2_2.y:
+                        points_intersection.append(self.equation(x2))
+        return points_intersection
+
+
 
     def tracer(self) -> None:
         # calcul du domaine de définition de x
         self.calcul_domaine()
         for abscisse in range(self.domaine[0], self.domaine[1] * 100):
             x = abscisse * 0.01
-            points = self.equation(x)
-            if points != []:
+            points = [self.equation(x, "superieure"), self.equation(x, "inferieure")]
+            if points != None:
                 for point in points:
                     point.tracer()

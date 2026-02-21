@@ -12,7 +12,7 @@ droite.tracer()
 foyer1 = Point(250, 200)
 foyer1.tracer()
 
-foyer2 = Point(350, 225)
+foyer2 = Point(230, 275)
 foyer2.tracer()
 
 parabole1 = Parabole(foyer1, droite)
@@ -20,6 +20,11 @@ parabole1.tracer()
 
 parabole2 = Parabole(foyer2, droite)
 parabole2.tracer()
+
+intersection = parabole1.intersection(parabole2)
+for points in intersection:
+    for point in points:
+        point.tracer((255,0,0))
 
 pygame.display.flip()
 
