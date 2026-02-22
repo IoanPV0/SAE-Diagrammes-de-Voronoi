@@ -1,6 +1,6 @@
 from point import Point
 from droite import Droite
-from config import screen
+from config import screen, egalite_float
 from math import sqrt
 class Parabole():
     def __init__(self, foyer : Point, directrice : Droite):
@@ -20,6 +20,8 @@ class Parabole():
     @property
     def domaine(self) -> tuple[int, int]:
         return self._domaine
+    
+    
 
     def calcul_domaine(self) -> None:
         a = self.foyer.x
@@ -42,12 +44,11 @@ class Parabole():
         # la partie sous la racine carrée de droite doit être positive ou 
         # nulle pour que y soit réel
         
-        discriminant = 2 * (a - k) * x + (k**2 - a**2)
+        discriminant = 2 * (a-k)*x + (k**2 - a**2)
 
         # verification si le discriminant est négatif
         if discriminant < 0:
             return None
-        
         if branche == "superieure":
             y = b + sqrt(discriminant)
         elif branche == "inferieure":
@@ -67,38 +68,20 @@ class Parabole():
         b2: float = parabole.foyer.y
         k: float = self.directrice.x
 
-        #SOLUTION 1 : superieure, superieure
+        # SOLUTION 1 : superieure, superieure
+
         branche_parabole_1 = "superieure"
         branche_parabole_2 = "superieure"
         
         d = 2*(a1-a2)
         e = a2**2 - a1**2 - (b2 - b1)**2
         f = 2*(b2-b1)
-
-        p = d**2
-        q = 2*d*e - 2*f**2*(a2-k)
-        r = e**2 - f**2*(k**2-a2**2)
-
-        # On obtient une équation de la forme px^2 + qx + r = 0 (polynome 2nd degré)
         
-        # Vérification du discriminant
-
-        delta = q**2 - 4*p*r
-        if delta < 0:
-            return None
-        if delta == 0:
-            # Résolution du polynome
-            x1 = -q /(2*p)
-            x2 = None
-        else:
-            # Résolution du polynome
-            x1 = (-q + sqrt(q**2 - 4*p*r)) / (2*p)
-            x2 = (-q - sqrt(q**2 - 4*p*r)) / (2*p)
-
-        """ VÉRIFICATION DE LA SOLUTION DANS LES 2 ÉQUATIONS"""
+        racines = self.solution_polynome(d, e, f, k, a2)
+        if racines != None:
+            for point in self.verification(racines[0], racines[1], branche_parabole_1, branche_parabole_2, parabole):
+                points_intersection.append(point)
          
-        self.verification(x1, x2, branche_parabole_1, branche_parabole_2, parabole)
-
         # SOLUTION 2 : superieure inferieure
 
         branche_parabole_1 = "superieure"
@@ -108,9 +91,10 @@ class Parabole():
         e = a2**2 - a1**2 - (b2-b1)**2
         f = (-2)*(b2-b1)
 
-        p = d**2
-        q = 2*d*e - 2*f**2*(a2-k)
-        r = e**2 - f**2*(k**2-a2**2)
+        racines = self.solution_polynome(d, e, f, k, a2)
+        if racines != None:
+            for point in self.verification(racines[0], racines[1], branche_parabole_1, branche_parabole_2, parabole):
+                points_intersection.append(point)
 
         # SOLUTION 3 : inferieure superieure
 
@@ -121,9 +105,10 @@ class Parabole():
         e = a1**2 + a2**2 - 2*k**2 - (b2-b1)**2
         f = 2*(b2-b1)
 
-        p = d**2
-        q = 2*d*e - 2*f**2*(a2-k)
-        r = e**2 - f**2*(k**2-a2**2)
+        racines = self.solution_polynome(d, e, f, k, a2)
+        if racines != None:
+            for point in self.verification(racines[0], racines[1], branche_parabole_1, branche_parabole_2, parabole):
+                points_intersection.append(point)
 
         # SOLUTION 4 : inferieure inferieure
         
@@ -132,23 +117,42 @@ class Parabole():
 
         d = (-2)*(a1-k)*(a2-k)
         e = a1**2 + a2**2 - 2*k**2 - (b2-b1)**2
-        f = (-2)*(b2-b1)
+        f = (-2)*(b2-b1)  
 
+        racines = self.solution_polynome(d, e, f, k, a2)
+        if racines != None:
+            for point in self.verification(racines[0], racines[1], branche_parabole_1, branche_parabole_2, parabole):
+                points_intersection.append(point)
+        print(points_intersection)
+        return points_intersection
+            
+    def solution_polynome(self, d: float, e: float, f: float, k: float, a2 : float) -> list[float]:
+
+        # On obtient une équation de la forme px^2 + qx + r = 0 (polynome 2nd degré)
         p = d**2
         q = 2*d*e - 2*f**2*(a2-k)
         r = e**2 - f**2*(k**2-a2**2)
-        
-       
-        
-        
-        print(x1, x2)
-        return points_intersection
-            
 
-    def verification(self, x1 : float, x2 : float, branche_parabole_1: str, branche_parabole_2: str, parabole):
-        
-        points_intersection = []
+        # Vérification du discriminant
+        delta = q**2 - 4*p*r
+        if delta < 0:
+            # Pas de solution réelle
+            return None
+        if delta == 0:
+            # Résolution du polynome
+            x1 = -q /(2*p)
+            x2 = None
+        else:
+            # Résolution du polynome
+            x1 = (-q + sqrt(q**2 - 4*p*r)) / (2*p)
+            x2 = (-q - sqrt(q**2 - 4*p*r)) / (2*p)
+        return [x1, x2]
 
+
+    # VÉRIFICATION DE LA SOLUTION DANS LES 2 ÉQUATIONS DE PARABOLE
+    def verification(self, x1 : float, x2 : float, branche_parabole_1: str, branche_parabole_2: str, parabole) -> list[Point]:
+        
+        points_intersection: list[Point] = []
         # Vérification du domaine de définition  
         if self.domaine[0] <= x1 <= self.domaine[1] or parabole.domaine[0] <= x1 <= parabole.domaine[1]:
             equation_x1_1 = self.equation(x1, branche_parabole_1)
@@ -157,8 +161,9 @@ class Parabole():
             if equation_x1_1 != None and equation_x1_2 != None: 
                 # On vérifie que la solution est la même 
                 # POUR LES BRANCHES TESTÉES
-                if equation_x1_1.y == equation_x1_2.y:
-                    points_intersection.append(self.equation(x1))
+                if egalite_float(equation_x1_1.y, equation_x1_2.y):
+                    points_intersection.append(equation_x1_1)
+                    
         if x2 != None:
             if self.domaine[0] <= x2 <= self.domaine[1] or parabole.domaine[0] <= x2 <= parabole.domaine[1]:
                 equation_x2_1 = self.equation(x2, branche_parabole_1)
@@ -167,8 +172,8 @@ class Parabole():
                 if equation_x2_1 != None and equation_x2_2 != None: 
                     # On vérifie que la solution est la même 
                     # POUR LES BRANCHES SUPÉRIEURES CAR C'EST CELLES QU'ON TESTE
-                    if equation_x2_1.y == equation_x2_2.y:
-                        points_intersection.append(self.equation(x2))
+                    if egalite_float(equation_x2_1.y, equation_x2_2.y):
+                        points_intersection.append(equation_x2_1)
         return points_intersection
 
 
