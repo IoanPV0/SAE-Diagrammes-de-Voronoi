@@ -171,7 +171,7 @@ class Parabole():
                 # On vérifie si les solutions existent
                 if equation_x2_1 != None and equation_x2_2 != None: 
                     # On vérifie que la solution est la même 
-                    # POUR LES BRANCHES SUPÉRIEURES CAR C'EST CELLES QU'ON TESTE
+                    # POUR LES BRANCHES TESTÉES
                     if egalite_float(equation_x2_1.y, equation_x2_2.y):
                         points_intersection.append(equation_x2_1)
         return points_intersection

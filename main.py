@@ -5,14 +5,14 @@ from parabole import Parabole
 from config import screen, clock
 screen.fill((255, 255, 255))
 
-droite = Droite(300)
+droite = Droite(400)
 droite.tracer()
 
 
 foyer1 = Point(250, 200)
 foyer1.tracer()
 
-foyer2 = Point(230, 275)
+foyer2 = Point(320, 400)
 foyer2.tracer()
 
 parabole1 = Parabole(foyer1, droite)
