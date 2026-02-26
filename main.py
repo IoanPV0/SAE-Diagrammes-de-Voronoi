@@ -6,13 +6,13 @@ from config import screen, clock
 screen.fill((255, 255, 255))
 from random import randint
 
-droite = Droite(0)
+droite = Droite(100)
 droite.tracer()
 
 
-foyer1 = Point(randint(100, 500), randint(100, 500))
+foyer1 = Point(220, 250)
 
-foyer2 = Point(randint(100, 500), randint(100, 500))
+foyer2 = Point(220, 350)
 
 parabole1 = Parabole(foyer1, droite)
 
@@ -48,16 +48,13 @@ while running:
     screen.fill((255, 255, 255))
     if droite.x <= screen.get_width():
         droite.x += 0.01 * dt
+
     droite.tracer()
     foyer1.tracer()
-    foyer2.tracer()
-    
-    """
-    for point in intersection:
-        point.tracer((255,0,0))
-    """
+    foyer2.tracer()    
     foyer3.tracer()
     foyer4.tracer()
+
     if droite.x > foyer1.x :
         parabole1.tracer()
     if droite.x > foyer2.x :

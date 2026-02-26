@@ -72,7 +72,6 @@ class Parabole():
 
         branche_parabole_1 = "superieure"
         branche_parabole_2 = "superieure"
-        print("p1:", branche_parabole_1, "p2:",branche_parabole_2)
         
         d = 2*(a1-a2)
         e = a2**2 - a1**2 - (b2 - b1)**2
@@ -87,13 +86,16 @@ class Parabole():
 
         branche_parabole_1 = "superieure"
         branche_parabole_2 = "inferieure"
-        print("p1:", branche_parabole_1, "p2:",branche_parabole_2)
 
         d = 2*(a1-a2)
         e = a2**2 - a1**2 - (b2-b1)**2
         f = (-2)*(b2-b1)
 
-        racines = self.solution_polynome(d, e, f, k, a2)
+        if d == 0 and b2 > b1:
+            x1 = (((b2-b1)/2)**2-(k**2-a1**2))/(2*(a1-k))
+            racines = [x1, None]
+        else:
+            racines = self.solution_polynome(d, e, f, k, a2)
         if racines != None:
             for point in self.verification(racines[0], racines[1], branche_parabole_1, branche_parabole_2, parabole):
                 points_intersection.append(point)
@@ -102,13 +104,16 @@ class Parabole():
 
         branche_parabole_1 = "inferieure"
         branche_parabole_2 = "superieure"
-        print("p1:", branche_parabole_1, "p2:",branche_parabole_2)
 
         d = 2*(a1-a2)
         e = (b1-b2)**2 + a2**2 - a1**2
         f = 2*(b1-b2)
 
-        racines = self.solution_polynome(d, e, f, k, a1)
+        if d == 0 and b1 > b2:
+            x1 = (((b1-b2)/2)**2 - (k**2 - a1**2))/(2*(a1 - k))
+            racines = [x1, None]
+        else : 
+            racines = self.solution_polynome(d, e, f, k, a1)
         if racines != None:
             for point in self.verification(racines[0], racines[1], branche_parabole_1, branche_parabole_2, parabole):
                 points_intersection.append(point)
@@ -117,7 +122,6 @@ class Parabole():
         
         branche_parabole_1 = "inferieure"
         branche_parabole_2 = "inferieure"
-        print("p1:", branche_parabole_1, "p2:",branche_parabole_2)
 
         d = 2*(a2-a1)
         e = (b1-b2)**2 + a1**2 - a2**2
@@ -180,8 +184,6 @@ class Parabole():
                     # POUR LES BRANCHES TESTÉES
                     if egalite_float(equation_x2_1.y, equation_x2_2.y):
                         points_intersection.append(equation_x2_1)
-        for point in points_intersection:
-            print(point.x, point.y)
         return points_intersection
 
 
