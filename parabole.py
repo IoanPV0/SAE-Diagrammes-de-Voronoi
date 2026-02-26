@@ -72,6 +72,7 @@ class Parabole():
 
         branche_parabole_1 = "superieure"
         branche_parabole_2 = "superieure"
+        print("p1:", branche_parabole_1, "p2:",branche_parabole_2)
         
         d = 2*(a1-a2)
         e = a2**2 - a1**2 - (b2 - b1)**2
@@ -86,6 +87,7 @@ class Parabole():
 
         branche_parabole_1 = "superieure"
         branche_parabole_2 = "inferieure"
+        print("p1:", branche_parabole_1, "p2:",branche_parabole_2)
 
         d = 2*(a1-a2)
         e = a2**2 - a1**2 - (b2-b1)**2
@@ -100,12 +102,13 @@ class Parabole():
 
         branche_parabole_1 = "inferieure"
         branche_parabole_2 = "superieure"
+        print("p1:", branche_parabole_1, "p2:",branche_parabole_2)
 
-        d = (-2)*(a1-k)*(a2-k)
-        e = a1**2 + a2**2 - 2*k**2 - (b2-b1)**2
-        f = 2*(b2-b1)
+        d = 2*(a1-a2)
+        e = (b1-b2)**2 + a2**2 - a1**2
+        f = 2*(b1-b2)
 
-        racines = self.solution_polynome(d, e, f, k, a2)
+        racines = self.solution_polynome(d, e, f, k, a1)
         if racines != None:
             for point in self.verification(racines[0], racines[1], branche_parabole_1, branche_parabole_2, parabole):
                 points_intersection.append(point)
@@ -114,24 +117,27 @@ class Parabole():
         
         branche_parabole_1 = "inferieure"
         branche_parabole_2 = "inferieure"
+        print("p1:", branche_parabole_1, "p2:",branche_parabole_2)
 
-        d = (-2)*(a1-k)*(a2-k)
-        e = a1**2 + a2**2 - 2*k**2 - (b2-b1)**2
-        f = (-2)*(b2-b1)  
+        d = 2*(a2-a1)
+        e = (b1-b2)**2 + a1**2 - a2**2
+        f = (-2)*(b1-b2) 
 
         racines = self.solution_polynome(d, e, f, k, a2)
         if racines != None:
             for point in self.verification(racines[0], racines[1], branche_parabole_1, branche_parabole_2, parabole):
                 points_intersection.append(point)
-        print(points_intersection)
+        
         return points_intersection
             
-    def solution_polynome(self, d: float, e: float, f: float, k: float, a2 : float) -> list[float]:
+    def solution_polynome(self, d: float, e: float, f: float, k: float, a: float) -> list[float]:
 
         # On obtient une équation de la forme px^2 + qx + r = 0 (polynome 2nd degré)
+        if d == 0: #pas de polynome du 2nd degré mais une solution quand meme a trouver
+            return None
         p = d**2
-        q = 2*d*e - 2*f**2*(a2-k)
-        r = e**2 - f**2*(k**2-a2**2)
+        q = 2*d*e - 2*f**2*(a-k)
+        r = e**2 - f**2*(k**2-a**2)
 
         # Vérification du discriminant
         delta = q**2 - 4*p*r
@@ -174,6 +180,8 @@ class Parabole():
                     # POUR LES BRANCHES TESTÉES
                     if egalite_float(equation_x2_1.y, equation_x2_2.y):
                         points_intersection.append(equation_x2_1)
+        for point in points_intersection:
+            print(point.x, point.y)
         return points_intersection
 
 
@@ -186,4 +194,5 @@ class Parabole():
             points = [self.equation(x, "superieure"), self.equation(x, "inferieure")]
             if points != None:
                 for point in points:
-                    point.tracer()
+                    if point is not None:
+                        point.tracer()
