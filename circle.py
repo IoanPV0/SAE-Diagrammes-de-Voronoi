@@ -10,9 +10,11 @@ class Circle:
         self._A:Point = A
         self._B:Point = B
         self._C:Point = C
+        self._center:Point = Point(0,0)
+        self._rayon:float = 0.0
         if not Circle.points_valid(A, B, C):
             raise ValueError("Les trois points ne forment pas un cercle valide")
-        self.__calc_centre_rayon()
+        self._calc_centre_rayon()
 
     @classmethod
     def points_valid(cls, A:Point, B:Point, C:Point) -> bool:
@@ -21,6 +23,7 @@ class Circle:
         '''
         AB = B - A
         AC = C - A
+        print(AB.x * AC.y - AC.x * AB.y)
         return (AB.x * AC.y - AC.x * AB.y) < 0
 
     @property
@@ -34,6 +37,9 @@ class Circle:
     @property
     def center(self) -> Point:
         return self._center
+    
+    def __str__(self):
+        return f"cercle de centre {self._center}et de rayon rayon {self._rayon}"
 
     def __eq__(self, cercle2:Any) -> bool:
         equal = False

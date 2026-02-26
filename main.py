@@ -13,27 +13,26 @@ if __name__ == "__main__":
     queue:PriorityQueue = PriorityQueue()
     for point in sites:
         queue.push(point)
-    beach = Beach()    
+    beach = Beach()
+    cercle_traites = []
     while not queue.empty():
         print(queue)
         event = queue.pop()
         if type(event) == Point:
-            beach.insert_point(event, sites)
-            beach.insert_cercle(sites, event.x)
-            new_circles = beach.insert_cercle(sites, event.x)
+            beach.insert_point(event)
+            new_circles = beach.detecte_cercle_valable(event)
             if new_circles is not None:
                 for circle in new_circles:
-                    queue.push(circle)
+                    if circle not in queue._events:
+                        queue.push(circle)
         else:
-            x_line = event.center.x + event.rayon
+            cercle_traites.append(event)
             beach.refermer_segments(event)
-            new_circles = beach.insert_cercle(sites, x_line)
+            new_circles = beach.insert_cercle(event)
             if new_circles is not None:
                 for circle in new_circles:
-                    queue.push(circle)
-    # : avancer la ligne de balayage pour se placer à l'evenement suivant et faire les traitements nécessaires
-
-
+                    if circle not in cercle_traites and circle not in queue._events:
+                        queue.push(circle)
 
 
     nuage = sites
