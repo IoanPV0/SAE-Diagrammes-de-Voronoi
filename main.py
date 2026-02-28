@@ -1,3 +1,5 @@
+from matplotlib import animation
+
 from json_loader import load_json, convert_to_points
 from point import Point
 from priorityqueue import PriorityQueue
@@ -16,7 +18,6 @@ if __name__ == "__main__":
     beach = Beach()
     cercle_traites = []
     while not queue.empty():
-        print(queue)
         event = queue.pop()
         if type(event) == Point:
             beach.insert_point(event)
@@ -34,18 +35,17 @@ if __name__ == "__main__":
                     if circle not in cercle_traites and circle not in queue._events:
                         queue.push(circle)
 
-
+    
     nuage = sites
-    print(sites)
     segs = beach._liste_segment_finis
-    print(segs)
     # en supposant que nuage est la liste de Point du diagramme
     xs_nuage = [pt.x for pt in nuage]
     ys_nuage = [pt.y for pt in nuage]
     plt.scatter(xs_nuage, ys_nuage)
 
     # en supposant que segs est la liste des segments
-    for s in segs:
+    def afficher_segment(i):
+        s = segs[i]
         p1, p2 = s.points
         plt.plot([p1.x, p2.x], [p1.y, p2.y])
 
@@ -57,6 +57,9 @@ if __name__ == "__main__":
     # orthonormé :
     ax = plt.gca()
     ax.set_aspect(1)
+
+    # animation:
+    anim = animation.FuncAnimation(plt.gcf(), afficher_segment, interval = 1, repeat = False, frames = len(segs))
 
     # affichage
     plt.show()

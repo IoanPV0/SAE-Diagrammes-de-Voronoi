@@ -23,7 +23,6 @@ class Circle:
         '''
         AB = B - A
         AC = C - A
-        print(AB.x * AC.y - AC.x * AB.y)
         return (AB.x * AC.y - AC.x * AB.y) < 0
 
     @property

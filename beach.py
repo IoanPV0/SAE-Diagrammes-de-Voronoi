@@ -16,11 +16,6 @@ class Beach():
         '''
         insère un point dans la plage
         '''
-        print("-----------------------------------------------------")
-        print("insertion du point ", point)
-        print("plage avant insertion ", self._liste_points)
-        print("liste des segments en cours avant insertion ", self._liste_segments_en_cours)
-        print("liste des segments finis avant insertion ", self._liste_segment_finis)
         if self._liste_points == []:
             self._liste_points.append(point)
         elif len(self._liste_points) == 1:
@@ -29,23 +24,19 @@ class Beach():
                 self._liste_segments_en_cours.append(Segment(Point(get_x(self._liste_points[0], point.y, point.x), point.y)))
                 self._liste_segments_en_cours.append(Segment(Point(get_x(self._liste_points[0], point.y, point.x), point.y)))
         else:
-            for i in range(len(self._liste_points)-1):
-                    print("on est dans la boucle, i = ", i)
-                    inter = intersection(self._liste_points[i], self._liste_points[i+1], point.x)
-                    if inter.y < point.y: #retravailler cette condition
-                        print(i,inter.y,point.y)
-                        continue
-                        
-                    if inter.y > point.y:
-                        print("on est ici, i = ", i)
-                        self._liste_points.insert(i+1, point)
-                        self._liste_points.insert(i+2, self._liste_points[i])
-                        point_start_segment = Point(get_x(self._liste_points[i], point.y, point.x), point.y)
-                        self._liste_segments_en_cours.insert(i,Segment(point_start_segment))
-                        self._liste_segments_en_cours.insert(i,Segment(point_start_segment))
-                        return
+            for i in range(len(self._liste_points)):
+                    if i < len(self._liste_points)-1:
+                        inter = intersection(self._liste_points[i], self._liste_points[i+1], point.x)
+                        if inter.y < point.y and inter.x > self._liste_points[i].x and inter.x < self._liste_points[i+1].x:
+                            continue
+                        if inter.y > point.y:
+                            self._liste_points.insert(i+1, point)
+                            self._liste_points.insert(i+2, self._liste_points[i])
+                            point_start_segment = Point(get_x(self._liste_points[i], point.y, point.x), point.y)
+                            self._liste_segments_en_cours.insert(i,Segment(point_start_segment))
+                            self._liste_segments_en_cours.insert(i,Segment(point_start_segment))
+                            return
                     else:
-                        print("on est là i = ", i)
                         self._liste_points.append(point)
                         self._liste_points.append(self._liste_points[i])
                         point_start_segment = Point(get_x(self._liste_points[i], point.y, point.x), point.y)
@@ -58,7 +49,6 @@ class Beach():
         '''
         teste les cercles valables autour de la plage
         '''
-        print("points à tester pour les cercles : ", self._liste_points)
         cercles = []
         if len(self._liste_points) < 3:
             return []
@@ -71,7 +61,6 @@ class Beach():
         '''
         insère un cercle dans la plage
         '''
-        print(f"insertion du {cercle}")
         #trouver le point du cercle qui a le plus grand x
         A = cercle._A
         B = cercle._B
@@ -84,13 +73,11 @@ class Beach():
             point_droite = C
 
         circles = self.detecte_cercle_valable(point_droite)
-        print("cercles valables : ", circles)
         if circles != []:
             return circles
         return None
 
     def refermer_segments (self, cercle:Circle):
-        print(f"réfermer les segments pour le {cercle}")
         centre = cercle.center
         #trouver le point du cercle qui a le plus grand x
         A = cercle._A
@@ -99,7 +86,6 @@ class Beach():
         #il faut parcourir les point de départ des segments et trouver les origines qui encadre le y du centre du cercle
         for i in range(len(self._liste_points)-2):
             if self._liste_points[i] == A and self._liste_points[i+1] == B and self._liste_points[i+2] == C:
-                print(self._liste_segments_en_cours)
                 self._liste_segments_en_cours[i].finish(centre)
                 self._liste_segments_en_cours[i+1].finish(centre)
                 #il faut ajouter les deux segments dans la liste des segments finis
@@ -110,5 +96,5 @@ class Beach():
                 del self._liste_segments_en_cours[i]
                 del self._liste_points[i+1]
                 #on ajoute un segments pour boucher le trou             
-                self._liste_segments_en_cours.append(Segment(centre))
+                self._liste_segments_en_cours.insert(i,Segment(centre))
                 
