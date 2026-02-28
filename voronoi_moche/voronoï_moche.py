@@ -15,7 +15,7 @@ def json_loader(chemin:str="liste_de_sites.json"):
 
 def dictionnaire_germes(germes:list[Point], pixel:Point):
     dico_distances = {}
-    for germe in germes:
+    for germe in germes: # À VOIR
         dico_distances[germe]=germe.distance_to(pixel)
     return dico_distances
 
@@ -52,6 +52,26 @@ def afficher_germe(germes:list[Point]):
     for germe in germes:
         plt.scatter(germe.x, germe.y, color='red', marker='x')
 
+def coloriage(h, l, espacement, germes):
+
+    my_array = np.zeros((h,l))
+    i = 0
+    j = 0
+
+    dico_couleur = {}
+    c=0
+    for germe in germes :
+        dico_couleur[germe]=c
+        c+=1
+
+    for i in range(0,h,espacement):
+        for j in range(0,l,espacement):
+            my_array[i][j] = dico_couleur[germe_le_plus_proche(germes, pixel = Point(i, j))]
+        
+
+    plt.imshow(my_array)
+
+            
 
 
 def voronoi_moche(fig,liste_points:Point):
@@ -64,6 +84,7 @@ if __name__ == "__main__":
     # exemple : on trace un grillage de 4×2 avec espacement 0.5
     def_grillage(fig, width=10, height=10, spacing=1)
     afficher_germe([Point(2, 3), Point(7, 8), Point(5, 5)])
+    coloriage(100,100,1,[Point(2, 3), Point(7, 8), Point(5, 5)])
 
     plt.show()  # affiche le grillage
     #donnees_points_brutes = json_loader()
