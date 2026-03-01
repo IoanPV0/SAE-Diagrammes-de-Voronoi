@@ -11,7 +11,9 @@ class VoronoiDiagram:
         self._triangles = []
 
     def build(self):
+        print(f"Nombre de points en entrée: {len(self.points)}")  # Debug
         if len(self.points) < 2:
+            print("Pas assez de points pour construire le diagramme.")
             return
 
         # 1. Créer un super-triangle
