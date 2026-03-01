@@ -10,6 +10,10 @@ class SVGVisualizer:
         """Génère un fichier SVG du diagramme de Voronoï."""
         edges = diagram.get_edges()
         points = diagram.points
+        if not edges or not points:
+            print("Aucune arête ou point à afficher.")
+            return
+
         min_x = min(p.x for p in points) - 1
         min_y = min(p.y for p in points) - 1
         max_x = max(p.x for p in points) + 1

@@ -1,5 +1,5 @@
 import math
-from typing import List, Tuple
+from typing import List, Tuple, Set
 from models.point import Point
 from models.edge import Edge
 
@@ -60,7 +60,6 @@ class VoronoiDiagram:
         """Teste si un point est à l'intérieur du cercle circonscrit d'un triangle."""
         a, b, c = triangle
         # Calcul du déterminant pour le test du cercle circonscrit
-        # (voir formule mathématique standard)
         return (
             (a.x**2 + a.y**2) * (b.y - c.y) +
             (b.x**2 + b.y**2) * (c.y - a.y) +
@@ -99,6 +98,7 @@ class VoronoiDiagram:
                     edge_map[edge] += 1
                 else:
                     edge_map[(edge[1], edge[0])] = 1
+        # Les arêtes de Voronoï sont celles qui n'apparaissent qu'une fois dans la triangulation de Delaunay
         for edge, count in edge_map.items():
             if count == 1:
                 self.edges.append(Edge(edge[0], edge[1]))
