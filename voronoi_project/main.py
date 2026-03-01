@@ -41,8 +41,8 @@ def run_benchmark_mode():
     print("--- Mode Benchmark ---")
     bench = VoronoiBenchmark()
     # Teste pour 5, 20, 50 et 100 points
-    bench.run_suite(sizes=[5, 20, 50, 100, 1000], resolution=400)
+    bench.run_suite(sizes=[5, 20, 50, 100], resolution=400)
 
 if __name__ == "__main__":
-    # run_app("data.txt")
-    run_benchmark_mode()
+    run_app("data.txt")
+    # run_benchmark_mode()
