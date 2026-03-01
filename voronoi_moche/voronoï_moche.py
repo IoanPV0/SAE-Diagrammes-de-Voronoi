@@ -63,6 +63,6 @@ if __name__ == "__main__":
     afficher_germe(germes_fichier)
     coloriage(100,100,1,germes_fichier)
 
+    plt.savefig("matplotlib_voronoi.svg", bbox_inches='tight')
     plt.show()  # affiche le grillage
-    plt.savefig("matplotlib_grid_01.png", bbox_inches='tight')
     plt.close()
