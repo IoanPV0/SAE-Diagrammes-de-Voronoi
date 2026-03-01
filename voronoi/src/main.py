@@ -26,7 +26,8 @@ def main():
     print(f"Nombre d'arêtes de Voronoï générées: {len(diagram.get_edges())}")
 
     # Visualise
-    SVGVisualizer.visualize(diagram, output_svg)
+    SVGVisualizer.visualize(diagram, output_svg, width=800, height=600)
+
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 import math
 from typing import List, Tuple, Dict, Set
-from .point import Point
-from .edge import Edge
+from models.point import Point
+from models.edge import Edge
 
 class Event:
     """Représente un événement (site ou cercle) pour l'algorithme de Fortune."""
