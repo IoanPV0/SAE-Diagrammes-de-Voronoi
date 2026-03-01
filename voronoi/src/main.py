@@ -5,11 +5,10 @@ from services.performance_meter import PerformanceMeter
 from visualizers.svg_visualizer import SVGVisualizer
 
 def main():
-    file_path = "example_points.txt"
     output_svg = "voronoi.svg"
 
     # Chemin absolu vers example_points.txt
-    file_path = path.join(path.dirname(__file__), "../example_points.txt")
+    file_path = path.join(path.dirname(__file__), "example_points.txt")
     print(f"Chemin du fichier: {file_path}")  # Debug
 
     # Parse les points
