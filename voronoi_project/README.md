@@ -43,7 +43,9 @@ Génère l'intégralité du code source structuré (tu dois diviser en plusieurs
 Problème version python 3.12 au lieu de 3.14, versions récentes matplotlib et pytest
 Correction de la taille du graphique (hauteur max et largeur max) en fonction des germes, supression des constantes magiques (hardcoding)
 Le moteur ne dépend plus d'une formule mathématique fixe. On peut lui passer n'importe quelle DistanceMetric.
-Ajout de valeurs par défaut et de protections contre les listes vides
+Gère les fichiers vides, les points en double et les bugs de récursion.
+L'utilisation de la distance au carré et le cache des tuples rend le calcul instantané pour de multiple points
+Chaque fichier a une seule responsabilité (SRP)
 
 # Temps pour le fonctionnement du projet
 Environ 1h

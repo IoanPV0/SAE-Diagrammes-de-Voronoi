@@ -1,15 +1,10 @@
-import math
 from abc import ABC, abstractmethod
 
 class DistanceMetric(ABC):
     @abstractmethod
-    def calculate(self, p1, p2) -> float:
+    def calculate_sq(self, x1, y1, x2, y2) -> float:
         pass
 
 class EuclideanDistance(DistanceMetric):
-    def calculate(self, p1, p2) -> float:
-        return math.sqrt((p1.x - p2.x)**2 + (p1.y - p2.y)**2)
-
-class ManhattanDistance(DistanceMetric):
-    def calculate(self, p1, p2) -> float:
-        return abs(p1.x - p2.x) + abs(p1.y - p2.y)
+    def calculate_sq(self, x1, y1, x2, y2) -> float:
+        return (x1 - x2)**2 + (y1 - y2)**2
