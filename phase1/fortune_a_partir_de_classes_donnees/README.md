@@ -1,3 +1,6 @@
+## 0. Se placer dans le bon repertoire
+cd phase1\fortune_a_partir_de_classes_donnees
+
 ## 1. Créer l'environnement virtuel
 python -m venv .venv
 
@@ -8,3 +11,6 @@ python -m venv .venv
 pip install -r requirements-dev.txt
 
 attention parfois l'IDE a un interpreteur python par défaut qui n'est pas le venv...
+
+## lancer le main.py
+python main.py

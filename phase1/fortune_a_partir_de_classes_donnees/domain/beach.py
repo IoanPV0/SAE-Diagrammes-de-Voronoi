@@ -1,6 +1,6 @@
-from circle import Circle
-from parabole_service import *
-from segment import Segment
+from domain.circle import Circle
+from services.parabole_service import *
+from domain.segment import Segment
 from typing import Union
 
 class Beach():

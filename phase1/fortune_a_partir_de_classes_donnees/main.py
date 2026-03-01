@@ -1,15 +1,15 @@
 from matplotlib import animation
 
-from json_loader import load_json, convert_to_points
-from point import Point
-from priorityqueue import PriorityQueue
-from parabole_service import *
-from beach import Beach
+from services.json_loader import load_json, convert_to_points
+from domain.point import Point
+from domain.priorityqueue import PriorityQueue
+from services.parabole_service import *
+from domain.beach import Beach
 import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
-    data = load_json("liste_de_sites.json")
+    data = load_json("data/liste_de_sites.json")
     sites = convert_to_points(data)
     plot_cadre = (Point(min(p.x for p in sites) - 10.0, min(p.y for p in sites) - 10.0), Point(max(p.x for p in sites) + 10.0, max(p.y for p in sites) + 10.0))
     queue:PriorityQueue = PriorityQueue()

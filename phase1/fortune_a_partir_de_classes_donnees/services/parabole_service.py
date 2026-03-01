@@ -1,4 +1,4 @@
-from point import Point
+from domain.point import Point
 from math import sqrt
 from typing import Optional
 

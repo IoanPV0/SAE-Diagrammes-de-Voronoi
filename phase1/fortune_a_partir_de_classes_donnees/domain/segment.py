@@ -1,5 +1,5 @@
 from typing import Optional, Tuple
-from point import Point
+from domain.point import Point
 
 class Segment:
     def __init__(self, A:Point, B:Optional[Point] = None):

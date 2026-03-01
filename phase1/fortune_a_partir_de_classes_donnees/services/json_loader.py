@@ -1,4 +1,4 @@
-from point import Point
+from domain.point import Point
 
 def load_json(filename: str) -> dict:
     '''

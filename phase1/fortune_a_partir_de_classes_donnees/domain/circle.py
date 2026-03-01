@@ -1,5 +1,5 @@
 from math import sqrt
-from point import Point
+from domain.point import Point
 from typing import Tuple, Any
 
 class Circle:

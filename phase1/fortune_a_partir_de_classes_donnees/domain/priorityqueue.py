@@ -1,5 +1,5 @@
-from point import Point
-from circle import Circle
+from domain.point import Point
+from domain.circle import Circle
 from typing import Union, Tuple
 
 class PriorityQueue:
