@@ -1,49 +1,44 @@
+# src/models/voronoi.py
 import math
-from typing import List, Tuple, Set
-from models.point import Point
-from models.edge import Edge
+from typing import List, Tuple, Set, Dict
+from .point import Point
+from .edge import Edge
 
 class VoronoiDiagram:
-    """Représente un diagramme de Voronoï, construit à partir d'une liste de points."""
-
     def __init__(self, points: List[Point]):
         self.points = points
         self.edges: List[Edge] = []
         self._triangles = []
 
     def build(self):
-        """Construit le diagramme de Voronoï à partir des points (algorithme Bowyer-Watson)."""
         if len(self.points) < 2:
             return
 
-        # 1. Créer un super-triangle contenant tous les points
+        # 1. Créer un super-triangle
         super_triangle = self._create_super_triangle()
         self._triangles = [super_triangle]
 
-        # 2. Ajouter chaque point un par un
+        # 2. Ajouter chaque point
         for point in self.points:
             bad_triangles = []
-            # Trouver tous les triangles dont le cercle circonscrit contient le point
             for triangle in self._triangles:
                 if self._is_point_in_circumcircle(point, triangle):
                     bad_triangles.append(triangle)
-            # Trouver la frontière de la cavité
+
             polygon = self._find_polygon_hole(bad_triangles)
-            # Supprimer les mauvais triangles
             for triangle in bad_triangles:
                 self._triangles.remove(triangle)
-            # Remplir la cavité avec de nouveaux triangles
+
             for edge in polygon:
                 new_triangle = (edge[0], edge[1], point)
                 self._triangles.append(new_triangle)
 
-        # 3. Supprimer les triangles contenant des sommets du super-triangle
+        # 3. Supprimer les triangles avec le super-triangle
         self._remove_super_triangle_edges(super_triangle)
-        # 4. Extraire les arêtes de Voronoï
-        self._extract_voronoi_edges()
+        # 4. Générer les arêtes de Voronoï
+        self._generate_voronoi_edges()
 
     def _create_super_triangle(self) -> Tuple[Point, Point, Point]:
-        """Crée un triangle suffisamment grand pour contenir tous les points."""
         min_x = min(p.x for p in self.points) - 10
         min_y = min(p.y for p in self.points) - 10
         max_x = max(p.x for p in self.points) + 10
@@ -57,9 +52,7 @@ class VoronoiDiagram:
         )
 
     def _is_point_in_circumcircle(self, point: Point, triangle: Tuple[Point, Point, Point]) -> bool:
-        """Teste si un point est à l'intérieur du cercle circonscrit d'un triangle."""
         a, b, c = triangle
-        # Calcul du déterminant pour le test du cercle circonscrit
         return (
             (a.x**2 + a.y**2) * (b.y - c.y) +
             (b.x**2 + b.y**2) * (c.y - a.y) +
@@ -74,7 +67,6 @@ class VoronoiDiagram:
         ) > 0
 
     def _find_polygon_hole(self, bad_triangles: List[Tuple[Point, Point, Point]]) -> List[Tuple[Point, Point]]:
-        """Trouve la frontière de la cavité formée par les mauvais triangles."""
         edges = []
         for triangle in bad_triangles:
             edges.extend([(triangle[0], triangle[1]), (triangle[1], triangle[2]), (triangle[2], triangle[0])])
@@ -85,24 +77,45 @@ class VoronoiDiagram:
         return polygon
 
     def _remove_super_triangle_edges(self, super_triangle: Tuple[Point, Point, Point]):
-        """Supprime les arêtes liées au super-triangle."""
         self._triangles = [t for t in self._triangles if not any(p in super_triangle for p in t)]
 
-    def _extract_voronoi_edges(self):
-        """Extrait les arêtes de Voronoï à partir des triangles de Delaunay."""
-        edge_map = {}
+    def _generate_voronoi_edges(self):
+        """Génère les arêtes de Voronoï à partir des triangles de Delaunay."""
+        # Dictionnaire pour stocker les centres des cercles circonscrits
+        circumcenters = {}
+
+        # Pour chaque triangle, calculer le centre du cercle circonscrit
         for triangle in self._triangles:
+            a, b, c = triangle
+            center = self._circumcenter(a, b, c)
+            circumcenters[(a, b, c)] = center
+
+        # Pour chaque arête de Delaunay, relier les centres des cercles adjacents
+        edge_to_centers = {}
+        for triangle in self._triangles:
+            a, b, c = triangle
+            center = circumcenters[(a, b, c)]
             for i in range(3):
                 edge = (triangle[i], triangle[(i+1)%3])
-                if edge in edge_map:
-                    edge_map[edge] += 1
-                else:
-                    edge_map[(edge[1], edge[0])] = 1
-        # Les arêtes de Voronoï sont celles qui n'apparaissent qu'une fois dans la triangulation de Delaunay
-        for edge, count in edge_map.items():
-            if count == 1:
-                self.edges.append(Edge(edge[0], edge[1]))
+                if edge not in edge_to_centers:
+                    edge_to_centers[edge] = []
+                edge_to_centers[edge].append(center)
+
+        # Les arêtes de Voronoï sont les segments reliant les centres des cercles adjacents
+        for edge, centers in edge_to_centers.items():
+            if len(centers) == 2:
+                self.edges.append(Edge(centers[0], centers[1]))
+
+    def _circumcenter(self, a: Point, b: Point, c: Point) -> Point:
+        """Calcule le centre du cercle circonscrit d'un triangle."""
+        # Calcul des milieux et des pentes
+        d = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y))
+        if d == 0:
+            return Point(float('inf'), float('inf'))  # Points colinéaires
+
+        ux = ((a.x**2 + a.y**2) * (b.y - c.y) + (b.x**2 + b.y**2) * (c.y - a.y) + (c.x**2 + c.y**2) * (a.y - b.y)) / d
+        uy = ((a.x**2 + a.y**2) * (c.x - b.x) + (b.x**2 + b.y**2) * (a.x - c.x) + (c.x**2 + c.y**2) * (b.x - a.x)) / d
+        return Point(ux, uy)
 
     def get_edges(self) -> List[Edge]:
-        """Retourne la liste des arêtes du diagramme."""
         return self.edges
