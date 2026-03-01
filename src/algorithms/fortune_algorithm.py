@@ -69,6 +69,9 @@ class FortuneAlgorithm:
             # Algorithme général via triangulation de Delaunay
             self._compute_via_delaunay()
         
+        # Prolonger les segments ouverts jusqu'aux bords de la bbox
+        self._close_open_edges()
+        
         return self._diagram
     
     def _handle_two_sites(self) -> None:
@@ -337,3 +340,134 @@ class FortuneAlgorithm:
                         triangles.append((p1, p2, p3))
         
         return triangles
+    
+    def _close_open_edges(self) -> None:
+        """
+        Prolonge les arêtes ouvertes jusqu'aux bords de la bounding box.
+        
+        Pour chaque sommet avec seulement 1 ou 2 arêtes connectées,
+        prolonge dans la direction appropriée jusqu'au bord.
+        """
+        min_x, min_y, max_x, max_y = self._diagram.bounding_box
+        epsilon = 1e-9
+        
+        # Grouper les arêtes par sommet
+        vertex_edges: Dict[Point, List[VoronoiEdge]] = {}
+        
+        for edge in self._diagram.edges:
+            # Chercher si start existe déjà (avec tolérance)
+            start_found = False
+            for existing_vertex in vertex_edges.keys():
+                if edge.start.distance_to(existing_vertex) < epsilon:
+                    vertex_edges[existing_vertex].append(edge)
+                    start_found = True
+                    break
+            if not start_found:
+                vertex_edges[edge.start] = [edge]
+            
+            # Chercher si end existe déjà (avec tolérance)
+            end_found = False
+            for existing_vertex in vertex_edges.keys():
+                if edge.end.distance_to(existing_vertex) < epsilon:
+                    vertex_edges[existing_vertex].append(edge)
+                    end_found = True
+                    break
+            if not end_found:
+                vertex_edges[edge.end] = [edge]
+        
+        edges_to_add = []
+        
+        for vertex, edges in vertex_edges.items():
+            num_edges = len(edges)
+            
+            if num_edges == 1:
+                # Un seul segment : prolonger dans la même direction
+                edge = edges[0]
+                
+                # Trouver l'autre extrémité
+                if edge.start.distance_to(vertex) < epsilon:
+                    other = edge.end
+                else:
+                    other = edge.start
+                
+                # Direction : du autre vers vertex
+                dx = vertex.x - other.x
+                dy = vertex.y - other.y
+                length = math.sqrt(dx * dx + dy * dy)
+                
+                if length > epsilon:
+                    dx /= length
+                    dy /= length
+                    
+                    # Point lointain dans cette direction
+                    far_point = Point(vertex.x + dx * 1000, vertex.y + dy * 1000)
+                    
+                    # Clipper à la bbox
+                    clipped = clip_line_to_bbox(vertex, far_point, min_x, min_y, max_x, max_y)
+                    
+                    if clipped:
+                        start, end = clipped
+                        new_edge = VoronoiEdge(start, end, edge.left_site, edge.right_site)
+                        edges_to_add.append(new_edge)
+            
+            elif num_edges == 2:
+                # Deux segments : prolonger dans la direction de la bissectrice
+                edge1, edge2 = edges[0], edges[1]
+                
+                # Trouver les autres extrémités
+                if edge1.start.distance_to(vertex) < epsilon:
+                    other1 = edge1.end
+                else:
+                    other1 = edge1.start
+                
+                if edge2.start.distance_to(vertex) < epsilon:
+                    other2 = edge2.end
+                else:
+                    other2 = edge2.start
+                
+                # Vecteurs pointant vers les autres extrémités
+                v1_x = other1.x - vertex.x
+                v1_y = other1.y - vertex.y
+                v2_x = other2.x - vertex.x
+                v2_y = other2.y - vertex.y
+                
+                # Normaliser
+                len1 = math.sqrt(v1_x * v1_x + v1_y * v1_y)
+                len2 = math.sqrt(v2_x * v2_x + v2_y * v2_y)
+                
+                if len1 > epsilon and len2 > epsilon:
+                    v1_x /= len1
+                    v1_y /= len1
+                    v2_x /= len2
+                    v2_y /= len2
+                    
+                    # Bissectrice : direction opposée à la moyenne
+                    bisect_x = -(v1_x + v2_x)
+                    bisect_y = -(v1_y + v2_y)
+                    
+                    bisect_len = math.sqrt(bisect_x * bisect_x + bisect_y * bisect_y)
+                    if bisect_len > epsilon:
+                        bisect_x /= bisect_len
+                        bisect_y /= bisect_len
+                        
+                        far_point = Point(vertex.x + bisect_x * 1000, vertex.y + bisect_y * 1000)
+                        clipped = clip_line_to_bbox(vertex, far_point, min_x, min_y, max_x, max_y)
+                        
+                        if clipped:
+                            start, end = clipped
+                            
+                            # Déterminer les sites
+                            sites1 = {edge1.left_site, edge1.right_site}
+                            sites2 = {edge2.left_site, edge2.right_site}
+                            unique_to_1 = sites1 - sites2
+                            unique_to_2 = sites2 - sites1
+                            
+                            if len(unique_to_1) == 1 and len(unique_to_2) == 1:
+                                left_site = list(unique_to_1)[0]
+                                right_site = list(unique_to_2)[0]
+                                new_edge = VoronoiEdge(start, end, left_site, right_site)
+                                edges_to_add.append(new_edge)
+        
+        # Ajouter les nouvelles arêtes
+        for edge in edges_to_add:
+            self._diagram.add_edge(edge)

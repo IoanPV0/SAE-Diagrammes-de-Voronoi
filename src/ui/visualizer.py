@@ -71,6 +71,13 @@ class Visualizer:
             ax: L'axe matplotlib sur lequel dessiner.
             diagram: Le diagramme à dessiner.
         """
+        # Dessiner le cadre de la bounding box (limites de clipping)
+        min_x, min_y, max_x, max_y = diagram.bounding_box
+        bbox_rect = plt.Rectangle((min_x, min_y), max_x - min_x, max_y - min_y,
+                                   fill=False, edgecolor='red', linewidth=2,
+                                   linestyle='--', label='Limites de clipping', zorder=1)
+        ax.add_patch(bbox_rect)
+        
         # Dessiner les arêtes (lignes bleues)
         for i, edge in enumerate(diagram.edges):
             x_coords = [edge.start.x, edge.end.x]
@@ -101,14 +108,11 @@ class Visualizer:
                        fontsize=8, color='darkgreen',
                        fontweight='bold')
         
-        # Configurer les limites
+        # Configurer les limites (afficher exactement la bbox sans marge supplémentaire)
         min_x, min_y, max_x, max_y = diagram.bounding_box
-        range_x = max_x - min_x
-        range_y = max_y - min_y
-        margin = 0.1 * max(range_x, range_y)
         
-        ax.set_xlim(min_x - margin, max_x + margin)
-        ax.set_ylim(min_y - margin, max_y + margin)
+        ax.set_xlim(min_x, max_x)
+        ax.set_ylim(min_y, max_y)
         
         # Ajouter la légende
         ax.legend(loc='upper right', framealpha=0.95, 
