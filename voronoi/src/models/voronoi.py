@@ -1,8 +1,8 @@
 # src/models/voronoi.py
 import math
-from typing import List, Tuple, Set, Dict
-from .point import Point
-from .edge import Edge
+from typing import List, Tuple, Dict
+from models.point import Point
+from models.edge import Edge
 
 class VoronoiDiagram:
     def __init__(self, points: List[Point]):
@@ -11,9 +11,7 @@ class VoronoiDiagram:
         self._triangles = []
 
     def build(self):
-        print(f"Nombre de points en entrée: {len(self.points)}")  # Debug
         if len(self.points) < 2:
-            print("Pas assez de points pour construire le diagramme.")
             return
 
         # 1. Créer un super-triangle
@@ -110,7 +108,6 @@ class VoronoiDiagram:
 
     def _circumcenter(self, a: Point, b: Point, c: Point) -> Point:
         """Calcule le centre du cercle circonscrit d'un triangle."""
-        # Calcul des milieux et des pentes
         d = 2 * (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y))
         if d == 0:
             return Point(float('inf'), float('inf'))  # Points colinéaires

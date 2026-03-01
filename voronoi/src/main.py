@@ -19,8 +19,12 @@ def main():
     time_taken = PerformanceMeter.measure(VoronoiBuilder.build, points)
     print(f"Temps d'exécution: {time_taken:.4f} secondes")
 
+
     # Construit le diagramme
     diagram = VoronoiBuilder.build(points)
+
+    print(f"Nombre d'arêtes de Voronoï générées: {len(diagram.get_edges())}")  # Debug
+
 
     # Visualise
     SVGVisualizer.visualize(diagram, output_svg)
