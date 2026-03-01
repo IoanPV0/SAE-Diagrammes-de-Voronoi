@@ -29,34 +29,13 @@ def germe_le_plus_proche(germes:list[Point], pixel:Point):
     return distance_minimale(dictionnaire_distances)
 
 
-#def coloriage():
-
-#A REFAIRE
-def def_grillage(fig, width: float, height: float, spacing: float = 0.1):
-    ax = fig.add_subplot(1, 1, 1)
-
-    plt.xlim(0, width)
-    plt.ylim(0, height)
-
-    grid_x_ticks = np.arange(0, width, spacing)
-    grid_y_ticks = np.arange(0, height, spacing)
-
-    ax.set_xticks(grid_x_ticks, minor=True)
-    ax.set_yticks(grid_y_ticks, minor=True)
-
-    ax.grid(which='both')
-    ax.grid(which='minor', alpha=0.2, linestyle='--')
-
-#A REFAIRE
 def afficher_germe(germes:list[Point]):
     for germe in germes:
         plt.scatter(germe.x, germe.y, color='red', marker='x')
 
-def coloriage(h, l, espacement, germes):
+def coloriage(height, width, espacement, germes):
 
-    my_array = np.zeros((h,l))
-    i = 0
-    j = 0
+    voronoi_diagram = np.zeros((height,width))
 
     dico_couleur = {}
     c=0
@@ -64,12 +43,12 @@ def coloriage(h, l, espacement, germes):
         dico_couleur[germe]=c
         c+=1
 
-    for i in range(0,h,espacement):
-        for j in range(0,l,espacement):
-            my_array[i][j] = dico_couleur[germe_le_plus_proche(germes, pixel = Point(i, j))]
+    for i in range(0,height,espacement):
+        for j in range(0,width,espacement):
+            voronoi_diagram[j][i] = dico_couleur[germe_le_plus_proche(germes, pixel = Point(i, j))]
         
 
-    plt.imshow(my_array)
+    plt.imshow(voronoi_diagram,origin='lower')
 
             
 
@@ -81,10 +60,11 @@ if __name__ == "__main__":
     
     fig = plt.figure()
 
+    germes_exemple = [Point(2, 3),Point(98,34),Point(12,45),Point(34,56),Point(78,90),Point(23,67),Point(45,23),Point(56,78),Point(67,12),Point(89,34)]
     # exemple : on trace un grillage de 4×2 avec espacement 0.5
-    def_grillage(fig, width=10, height=10, spacing=1)
-    afficher_germe([Point(2, 3), Point(7, 8), Point(5, 5)])
-    coloriage(100,100,1,[Point(2, 3), Point(7, 8), Point(5, 5)])
+    #def_grillage(fig, width=10, height=10, spacing=1)
+    afficher_germe(germes_exemple)
+    coloriage(100,100,1,germes_exemple)
 
     plt.show()  # affiche le grillage
     #donnees_points_brutes = json_loader()
