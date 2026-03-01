@@ -1,6 +1,6 @@
 import time
 from typing import List, Callable
-from src.models.point import Point
+from models.point import Point
 
 class PerformanceMeter:
     """Mesure le temps d'exécution d'une fonction en fonction du nombre de points."""

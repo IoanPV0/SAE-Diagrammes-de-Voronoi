@@ -1,6 +1,6 @@
 from typing import List
-from src.models.voronoi import VoronoiDiagram
-from src.models.edge import Edge
+from models.voronoi import VoronoiDiagram
+from models.edge import Edge
 
 class SVGVisualizer:
     """Génère une représentation SVG d'un diagramme de Voronoï."""

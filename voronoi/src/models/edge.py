@@ -1,4 +1,4 @@
-from src.models.point import Point
+from models.point import Point
 
 class Edge:
     """Représente une arête d'un diagramme de Voronoï, définie par deux points."""

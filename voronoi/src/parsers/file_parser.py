@@ -1,5 +1,5 @@
 from typing import List
-from src.models.point import Point
+from models.point import Point
 
 class FileParser:
     """Parse un fichier texte contenant des points sous forme de paires de coordonnées."""
