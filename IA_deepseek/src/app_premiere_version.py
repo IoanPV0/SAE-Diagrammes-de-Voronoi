@@ -14,8 +14,7 @@ from src.models.point import Point
 from src.models.edge import Edge
 from src.io.point_reader import PointReader
 from src.algorithms.fortune_algorithm import FortuneAlgorithm
-from src.algorithms.voronoi_cell_generator import VoronoiCellGenerator
-from src.visualization.colored_voronoi_visualizer import ColoredVoronoiVisualizer
+from src.visualization.voronoi_visualizer import VoronoiVisualizer
 from src.io.exporters.svg_exporter import SVGExporter
 from src.performance.benchmark import Benchmark
 
@@ -23,22 +22,32 @@ from src.performance.benchmark import Benchmark
 class VoronoiApplication:
     """
     Classe principale de l'application.
+    
+    Cette classe orchestre les différentes parties de l'application
+    en respectant le principe d'inversion de dépendances (SOLID).
     """
     
     def __init__(self):
         """Initialise l'application avec ses composants."""
         self.generator = FortuneAlgorithm()
-        self.cell_generator = VoronoiCellGenerator()
-        self.visualizer = ColoredVoronoiVisualizer()
+        self.visualizer = VoronoiVisualizer()
         self.svg_exporter = SVGExporter()
         self.current_points: List[Point] = []
         self.current_edges: List[Edge] = []
-        self.current_cells = {}
         self.benchmark = Benchmark(self.generator)
     
     def load_points_from_file(self, file_path: str) -> List[Point]:
         """
         Charge les points depuis un fichier.
+        
+        Args:
+            file_path: Chemin vers le fichier
+            
+        Returns:
+            List[Point]: Points chargés
+            
+        Raises:
+            Exception: Si le chargement échoue
         """
         if not PointReader.validate_file_extension(file_path):
             raise ValueError(f"Extension de fichier non supportée. Utilisez .txt")
@@ -51,47 +60,54 @@ class VoronoiApplication:
         
         return points
     
-    def generate_diagram(self) -> dict:
+    def generate_diagram(self) -> List[Edge]:
         """
-        Génère le diagramme de Voronoï avec cellules colorées.
+        Génère le diagramme de Voronoï à partir des points courants.
+        
+        Returns:
+            List[Edge]: Arêtes du diagramme
+            
+        Raises:
+            ValueError: Si aucun point n'est chargé
         """
         if not self.current_points:
             raise ValueError("Aucun point chargé. Chargez d'abord un fichier.")
         
         print(f"Génération du diagramme pour {len(self.current_points)} points...")
-        
-        # Générer les cellules
-        self.current_cells = self.cell_generator.generate(self.current_points)
-        
-        # Générer aussi les arêtes pour compatibilité
         self.current_edges = self.generator.generate(self.current_points)
+        print(f"✓ Diagramme généré avec {len(self.current_edges)} arêtes")
         
-        print(f"✓ Diagramme généré avec {len(self.current_cells)} cellules")
-        
-        return self.current_cells
+        return self.current_edges
     
-    def visualize(self, title: str = "Diagramme de Voronoï - Cellules colorées") -> None:
+    def visualize(self, title: str = "Diagramme de Voronoï") -> None:
         """
-        Visualise le diagramme avec cellules colorées.
+        Visualise le diagramme courant.
+        
+        Args:
+            title: Titre de la visualisation
+            
+        Raises:
+            ValueError: Si aucun diagramme n'est généré
         """
-        if not self.current_cells:
+        if not self.current_edges:
             raise ValueError("Aucun diagramme généré. Générez d'abord le diagramme.")
         
         self.visualizer.create_figure(title)
-        
-        # Tracer les cellules colorées
-        self.visualizer.plot_colored_cells(self.current_cells, self.current_points)
-        
-        # Optionnel : tracer aussi les arêtes pour plus de netteté
-        # self.visualizer.plot_edges_only(self.current_edges, color='black', linewidth=1.0)
-        
-        self.visualizer.auto_set_limits(self.current_cells, self.current_points)
+        self.visualizer.plot_edges(self.current_edges)
+        self.visualizer.plot_points(self.current_points)
+        self.visualizer.auto_set_limits(self.current_edges, self.current_points)
         self.visualizer.add_labels()
         self.visualizer.show()
     
     def export_svg(self, output_path: str) -> None:
         """
         Exporte le diagramme au format SVG.
+        
+        Args:
+            output_path: Chemin de sortie
+            
+        Raises:
+            ValueError: Si aucun diagramme n'est généré
         """
         if not self.current_edges:
             raise ValueError("Aucun diagramme généré. Générez d'abord le diagramme.")
@@ -99,23 +115,13 @@ class VoronoiApplication:
         self.svg_exporter.export(self.current_edges, self.current_points, output_path)
         print(f"✓ Diagramme exporté vers {output_path}")
     
-    def export_colored_svg(self, output_path: str) -> None:
-        """
-        Exporte le diagramme coloré en SVG via matplotlib.
-        """
-        if not self.current_cells:
-            raise ValueError("Aucun diagramme généré. Générez d'abord le diagramme.")
-        
-        self.visualizer.create_figure("Diagramme de Voronoï - Export")
-        self.visualizer.plot_colored_cells(self.current_cells, self.current_points)
-        self.visualizer.auto_set_limits(self.current_cells, self.current_points)
-        self.visualizer.save(output_path)
-        self.visualizer.close()
-        print(f"✓ Diagramme coloré exporté vers {output_path}")
-    
     def run_benchmark(self, max_points: int = 500, steps: int = 10) -> None:
         """
         Exécute un benchmark de performance.
+        
+        Args:
+            max_points: Nombre maximum de points à tester
+            steps: Nombre de points de mesure
         """
         point_counts = [int(i * max_points / steps) for i in range(2, steps + 1)]
         
@@ -136,21 +142,20 @@ class VoronoiApplication:
     
     def interactive_mode(self) -> None:
         """Mode interactif de l'application."""
-        print("\n" + "="*60)
-        print("Application de Diagramme de Voronoï - Version Cellules Colorées")
-        print("="*60)
+        print("\n" + "="*50)
+        print("Application de Diagramme de Voronoï")
+        print("="*50)
         
         while True:
             print("\nMenu principal:")
             print("1. Charger un fichier de points")
-            print("2. Générer le diagramme (cellules colorées)")
+            print("2. Générer le diagramme")
             print("3. Visualiser le diagramme")
-            print("4. Exporter en SVG (arêtes seulement)")
-            print("5. Exporter en image colorée (PNG/SVG)")
-            print("6. Exécuter un benchmark")
-            print("7. Quitter")
+            print("4. Exporter en SVG")
+            print("5. Exécuter un benchmark")
+            print("6. Quitter")
             
-            choice = input("\nVotre choix (1-7): ").strip()
+            choice = input("\nVotre choix (1-6): ").strip()
             
             try:
                 if choice == '1':
@@ -168,25 +173,17 @@ class VoronoiApplication:
                         print("Veuillez d'abord générer un diagramme.")
                         continue
                     
-                    output = input("Nom du fichier SVG (ex: diagramme.svg): ").strip()
+                    output = input("Nom du fichier de sortie (ex: diagramme.svg): ").strip()
                     if not output.endswith('.svg'):
                         output += '.svg'
                     self.export_svg(output)
                 
                 elif choice == '5':
-                    if not self.current_cells:
-                        print("Veuillez d'abord générer un diagramme.")
-                        continue
-                    
-                    output = input("Nom du fichier image (ex: diagramme.png): ").strip()
-                    self.export_colored_svg(output)
-                
-                elif choice == '6':
                     max_points = int(input("Nombre maximum de points (défaut: 500): ") or "500")
                     steps = int(input("Nombre de mesures (défaut: 10): ") or "10")
                     self.run_benchmark(max_points, steps)
                 
-                elif choice == '7':
+                elif choice == '6':
                     print("Au revoir!")
                     break
                 
@@ -202,7 +199,6 @@ def main():
     parser = argparse.ArgumentParser(description="Application de diagramme de Voronoï")
     parser.add_argument("--file", "-f", help="Fichier de points à charger")
     parser.add_argument("--export", "-e", help="Exporter en SVG (spécifier le chemin)")
-    parser.add_argument("--export-color", "-c", help="Exporter en image colorée")
     parser.add_argument("--benchmark", "-b", action="store_true", help="Exécuter un benchmark")
     parser.add_argument("--max-points", type=int, default=500, help="Points max pour benchmark")
     
@@ -218,8 +214,6 @@ def main():
             
             if args.export:
                 app.export_svg(args.export)
-            elif args.export_color:
-                app.export_colored_svg(args.export_color)
             else:
                 app.visualize()
                 
