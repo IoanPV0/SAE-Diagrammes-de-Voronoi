@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 
 if __name__ == "__main__":
-    data = load_json("data/liste_de_sites.json")
+    data = load_json("data/liste_de_sites100.json")
     sites = convert_to_points(data)
     plot_cadre = (Point(min(p.x for p in sites) - 10.0, min(p.y for p in sites) - 10.0), Point(max(p.x for p in sites) + 10.0, max(p.y for p in sites) + 10.0))
     queue:PriorityQueue = PriorityQueue()
@@ -49,6 +49,11 @@ if __name__ == "__main__":
         p1, p2 = s.points
         plt.plot([p1.x, p2.x], [p1.y, p2.y])
 
+    # sans animation:
+    def afficher_tout():
+        for i in range(len(segs)):
+            afficher_segment(i)
+
     # zoom sur la zone utile, en supposant que
     # left, right, top, bottom définissent le cadre
     plt.xlim(plot_cadre[0].x, plot_cadre[1].x)
@@ -59,7 +64,11 @@ if __name__ == "__main__":
     ax.set_aspect(1)
 
     # animation:
-    anim = animation.FuncAnimation(plt.gcf(), afficher_segment, interval = 1, repeat = False, frames = len(segs))
-
-    # affichage
+    a_animer = True
+    if a_animer:
+        anim = animation.FuncAnimation(plt.gcf(), afficher_segment, interval = 1, repeat = False, frames = len(segs))
+    else :
+        afficher_tout()
+    
+    #affichage
     plt.show()
