@@ -1,7 +1,7 @@
 import math
 from typing import List, Tuple
-from .point import Point
-from .edge import Edge
+from src.models.point import Point
+from src.models.edge import Edge
 
 class VoronoiDiagram:
     """Représente un diagramme de Voronoï, construit à partir d'une liste de points."""

@@ -1,6 +1,6 @@
 from typing import List
-from ..models.point import Point
-from ..models.voronoi import VoronoiDiagram
+from src.models.point import Point
+from src.models.voronoi import VoronoiDiagram
 
 class VoronoiBuilder:
     """Service pour construire un diagramme de Voronoï à partir d'une liste de points."""
