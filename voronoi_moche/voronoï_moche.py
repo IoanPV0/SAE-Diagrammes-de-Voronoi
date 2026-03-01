@@ -45,7 +45,7 @@ def coloriage(height, width, espacement, germes):
 
     for i in range(0,height,espacement):
         for j in range(0,width,espacement):
-            voronoi_diagram[j][i] = dico_couleur[germe_le_plus_proche(germes, pixel = Point(i, j))]
+            voronoi_diagram[i][j] = dico_couleur[germe_le_plus_proche(germes, pixel = Point(j, i))]
         
 
     plt.imshow(voronoi_diagram,origin='lower')
